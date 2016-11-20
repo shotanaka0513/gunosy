@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import math
 import sys
+import csv
+from pandas import DataFrame
+import pandas as pd
 
 # yahoo!形態素解析
 import morphological
@@ -38,20 +41,31 @@ class NaiveBayes:
         best = None  # 最適なカテゴリ
         max = -sys.maxsize
         word = getwords(doc)
-
+        self.catprob_dframe = pd.read_csv("catprob.csv",index_col=0)
+        self.wordprob_dframe = pd.read_csv("wordprob.csv",index_col=0)
         # カテゴリ毎に確率の対数を求める
-        for cat in list(self.catcount.keys()):
+        for cat in self.catprob_dframe.columns:
             prob = self.score(word, cat)
             if prob > max:
                 max = prob
                 best = cat
-
         return best
 
+    #ここを修正
     def score(self, word, cat):
-        score = math.log(self.priorprob(cat))
+        
+        score = math.log(self.catprob_dframe[cat][0])
         for w in word:
-            score += math.log(self.wordprob(w, cat))
+            #カプセル化
+            try:
+                score += math.log(self.wordprob_dframe[cat][w])
+            #logの真数が0のなるときはscoreに0を加算します。
+            except ValueError:
+                score += 0
+                continue
+            #データフレームの要素を取り出すときに、値があるかどうかをエラー処理で確認を致します。
+            except KeyError:
+                continue
         return score
 
     def priorprob(self, cat):
@@ -70,3 +84,24 @@ class NaiveBayes:
             (sum(self.wordcount[cat].values()) +
              len(self.vocabularies) * 1.0)
         return prob
+
+
+    def catprob_to_csv(self):
+        self.catdata = {}
+        for cat in self.catcount.keys():
+            self.catdata.update({cat:[self.priorprob(cat)]})
+        catprob_dframe = DataFrame(self.catdata)
+        catprob_dframe.to_csv('catprob.csv')
+
+    def wordprob_to_csv(self):
+        self.worddata = {}
+        for cat in self.catcount.keys():
+            self.worddata.setdefault(cat,{})
+            for word in self.vocabularies:
+                self.worddata[cat].setdefault(word,self.wordprob(word,cat))
+        wordprob_dframe = DataFrame(self.worddata)
+        wordprob_dframe.to_csv('wordprob.csv')
+
+        
+
+

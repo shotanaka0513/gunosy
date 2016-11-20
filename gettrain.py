@@ -39,7 +39,7 @@ def gunosy_train(obj):
     # 各カテゴリー内のページの枚数の番号（定数）
     # 汎用性を持たせるため値は変更可能。ただし、1<=CATEGORY_START,CATEGORY_END<=100
     CATEGORY_START = 1
-    CATEGORY_END = 100
+    CATEGORY_END = 1
 
     # 取得ページ数の表示
     page_numbers = 1
@@ -106,3 +106,6 @@ def gunosy_train(obj):
                 obj.train(page_title, category_name)
                 # Gunosyのサイトでアクセス制限があれば以下の関数を利用して下さい。
                 # time.sleep(1)
+    obj.catprob_to_csv()
+    obj.wordprob_to_csv()
+

@@ -10,7 +10,7 @@ import gettrain
 # ナイーブベイズ分類器のオブジェクトを作成。
 nb = naivebayes.NaiveBayes()
 # Gunosyのサイトをスクレイピングし、その記事データを用いて訓練させます。
-gettrain.gunosy_train(nb)
+# gettrain.gunosy_train(nb)
 
 
 def hello_guess_category(request):
