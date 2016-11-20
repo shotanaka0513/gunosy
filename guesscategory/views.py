@@ -2,10 +2,11 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from datetime import datetime
+import sys,os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../classifier/')
 import naivebayes
 import gethtmltext
 import gettrain
-
 
 # ナイーブベイズ分類器のオブジェクトを作成。
 nb = naivebayes.NaiveBayes()
