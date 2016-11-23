@@ -8,8 +8,8 @@ def split(body):
     # YahooのAPIを利用して形態素解析
     request_URL = "http://jlp.yahooapis.jp/MAService/V1/parse"
 
-    parameter = {'appid': 
-    """dj0zaiZpPVVKS0lNNk1nVWtZRiZzPWNvbnN1bWVyc2VjcmV0Jng9Y2M-""",
+    parameter = {'appid':
+                 'dj0zaiZpPVVKS0lNNk1nVWtZRiZzPWNvbnN1bWVyc2VjcmV0Jng9Y2M-',
                  'sentence': body,
                  'results': 'ma',
                  'filter': '1|2|3|4|5|9|10'}

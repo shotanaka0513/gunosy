@@ -2,9 +2,9 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from datetime import datetime
-import sys,os
-
-#パスを通す。
+import sys
+import os
+# パスを通す。
 sys.path.append(os.path.dirname(os.path.abspath('gunosy')) + '/classifier')
 sys.path.append(os.path.dirname(os.path.abspath('gunosy')) + '/crawler')
 import naivebayes
@@ -12,9 +12,8 @@ import gethtmltext
 import gettrain
 
 
-
 def hello_guess_category(request):
-    #オブジェクトを作成。
+    # オブジェクトを作成。
     nb = naivebayes.NaiveBayes()
     # フォームからurlを取得
     url = request.GET.get('url')
