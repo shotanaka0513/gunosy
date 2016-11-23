@@ -108,4 +108,3 @@ def gunosy_train(obj):
                 # time.sleep(1)
     obj.catprob_to_csv()
     obj.wordprob_to_csv()
-
