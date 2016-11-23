@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import math
-import sys
+import sys,os
 import csv
 from pandas import DataFrame
 import pandas as pd
-
 # yahoo!形態素解析
 import morphological
 
+flag = 0
 
 def getwords(doc):
     words = [s.lower() for s in morphological.split(doc)]
@@ -15,6 +15,7 @@ def getwords(doc):
 
 
 class NaiveBayes:
+
 
     def __init__(self):
         self.vocabularies = set()  # 単語の集合
@@ -37,10 +38,21 @@ class NaiveBayes:
             self.wordcountup(w, cat)
         self.catcountup(cat)
 
+    
+
     def classifier(self, doc):
+        global flag
         best = None  # 最適なカテゴリ
         max = -sys.maxsize
         word = getwords(doc)
+
+        #最初にアクセスしたときのみmodelsへ移動する。
+        if flag == 0:
+            os.chdir("classifier/data/models")
+            print (flag)
+            flag = 1
+
+
         self.catprob_dframe = pd.read_csv("catprob.csv",index_col=0)
         self.wordprob_dframe = pd.read_csv("wordprob.csv",index_col=0)
         # カテゴリ毎に確率の対数を求める
@@ -101,7 +113,4 @@ class NaiveBayes:
                 self.worddata[cat].setdefault(word,self.wordprob(word,cat))
         wordprob_dframe = DataFrame(self.worddata)
         wordprob_dframe.to_csv('wordprob.csv')
-
-        
-
 

@@ -2,12 +2,17 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.error import HTTPError
+from pandas import Series, DataFrame
+import sys,os
+#パスを通す。
+sys.path.append(os.path.dirname(os.path.abspath('')) + '/classifier')
 import naivebayes
 import time
 
 
 def gunosy_train(obj):
 
+    flag = 0
     # カテゴリーのurl
     category_urls = [
         'https://gunosy.com/categories/1',  # エンタメ
@@ -39,7 +44,7 @@ def gunosy_train(obj):
     # 各カテゴリー内のページの枚数の番号（定数）
     # 汎用性を持たせるため値は変更可能。ただし、1<=CATEGORY_START,CATEGORY_END<=100
     CATEGORY_START = 1
-    CATEGORY_END = 1
+    CATEGORY_END = 2
 
     # 取得ページ数の表示
     page_numbers = 1
@@ -70,6 +75,8 @@ def gunosy_train(obj):
                                       (category_url, category_page_index))
 
         for category_page_url in category_page_urls:
+            
+            page_urls = []
             # 各カテゴリーのページurlのhtmlのタイトルとコンテンツを取得し、ナイーブベイズ分類器で学習させる。
             # try文でカプセル化します。
             # 各カテゴリーのhtmlを取得
@@ -94,10 +101,15 @@ def gunosy_train(obj):
                     page_title = category_page_object.find_all("div", {
                         "class": "list_title"})[
                         page_index].a.get_text()
+                    page_url = category_page_object.find_all("div",{"class":"list_title"})[
+                        page_index].a.get("href")
+                    #Noneオブジェクトにアクセスしないようにする。
                 except AttributeError as e:
                     # エラーの内容を端末に出力
                     print(e)
                     continue
+                #1つのカテゴリーのurlをすべてリストに保存します。
+                page_urls.append(page_url)
                 # デバック
                 print("No%s,obj.train(%s,%s)" %
                       (page_numbers, page_title, category_name))
@@ -106,6 +118,23 @@ def gunosy_train(obj):
                 obj.train(page_title, category_name)
                 # Gunosyのサイトでアクセス制限があれば以下の関数を利用して下さい。
                 # time.sleep(1)
+
+
+        page_urls_dframe = DataFrame(page_urls)
+        
+        if flag == 0:
+            os.chdir("../classifier/data/articles/")
+            flag = 1 
+
+        os.chdir("{}".format(category_name))
+        page_urls_dframe.to_csv("{}.csv".format(category_name))
+        os.chdir("../")
+
+    os.chdir("../models")
     obj.catprob_to_csv()
     obj.wordprob_to_csv()
 
+
+if __name__ == '__main__':
+    nb = naivebayes.NaiveBayes()
+    gunosy_train(nb)
