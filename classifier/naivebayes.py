@@ -6,13 +6,13 @@ import csv
 from pandas import DataFrame
 import pandas as pd
 # yahoo!形態素解析
-import morphological
+import classifier.morphological
 
 flag = 0
 
 
 def getwords(doc):
-    words = [s.lower() for s in morphological.split(doc)]
+    words = [s.lower() for s in classifier.morphological.split(doc)]
     return tuple(w for w in words)
 
 
@@ -48,7 +48,6 @@ class NaiveBayes:
         # 最初にアクセスしたときのみmodelsへ移動する。
         if flag == 0:
             os.chdir("classifier/data/models")
-            print(flag)
             flag = 1
 
         self.catprob_dframe = pd.read_csv("catprob.csv", index_col=0)

@@ -3,12 +3,8 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from pandas import Series, DataFrame
-import sys
+import classifier.naivebayes
 import os
-# パスを通す。
-sys.path.append(os.path.dirname(os.path.abspath('')) + '/classifier')
-import naivebayes
-import time
 
 
 def gunosy_train(obj):
@@ -40,12 +36,12 @@ def gunosy_train(obj):
 
     # 各カテゴリー内のページのタイトルインデックス(定数)
     PAGE_TITLE_START = 0
-    PAGE_TITLE_END = 20
+    PAGE_TITLE_END = 1
 
     # 各カテゴリー内のページの枚数の番号（定数）
     # 汎用性を持たせるため値は変更可能。ただし、1<=CATEGORY_START,CATEGORY_END<=100
     CATEGORY_START = 1
-    CATEGORY_END = 2
+    CATEGORY_END = 1
 
     # 取得ページ数の表示
     page_numbers = 1
@@ -124,7 +120,7 @@ def gunosy_train(obj):
         page_urls_dframe = DataFrame(page_urls)
 
         if flag == 0:
-            os.chdir("../classifier/data/articles/")
+            os.chdir("classifier/data/articles/")
             flag = 1
 
         os.chdir("{}".format(category_name))
@@ -134,8 +130,3 @@ def gunosy_train(obj):
     os.chdir("../models")
     obj.catprob_to_csv()
     obj.wordprob_to_csv()
-
-
-if __name__ == '__main__':
-    nb = naivebayes.NaiveBayes()
-    gunosy_train(nb)
