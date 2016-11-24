@@ -7,9 +7,11 @@ import classifier.naivebayes
 import crawler.gethtmltext
 import crawler.gettrain
 
-# 訓練する際はここの以下の２行のコードを挿入してください。
+# # 訓練する際は以下の４行のコードを挿入してください。
 # nb = classifier.naivebayes.NaiveBayes()
 # crawler.gettrain.gunosy_train(nb)
+# print("訓練データの収集が完了しました。ctrl+cを押して、python manage.py runserverでappを実行して下さい。")
+# sys.exit()
 
 
 def hello_guess_category(request):
