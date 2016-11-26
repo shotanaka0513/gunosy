@@ -2,7 +2,6 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from datetime import datetime
-import sys
 import classifier.naivebayes
 import crawler.gethtmltext
 import crawler.gettrain
