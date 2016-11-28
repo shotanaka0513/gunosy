@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'guesscategory',
     'classifier',
     'crawler',
+    'gunosy'
 ]
 
 MIDDLEWARE = [
