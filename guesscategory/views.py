@@ -2,25 +2,24 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from datetime import datetime
-import sys,os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../classifier/')
-import naivebayes
-import gethtmltext
-import gettrain
+import classifier.naivebayes
+import crawler.gethtmltext
+import crawler.gettrain
 
-# ナイーブベイズ分類器のオブジェクトを作成。
-nb = naivebayes.NaiveBayes()
-# Gunosyのサイトをスクレイピングし、その記事データを用いて訓練させます。
-# gettrain.gunosy_train(nb)
+
+# nb = classifier.naivebayes.NaiveBayes()
+# crawler.gettrain.gunosy_train(nb)
+# print("訓練データの収集が完了しました。ctrl+cを押して、python manage.py runserverでappを実行して下さい。")
+# sys.exit()
 
 
 def hello_guess_category(request):
-    # view関数が呼ばれたびにスクレイピングして学習しないようにオブジェクトは外部で作成します。
-    global nb
+    # オブジェクトを作成。
+    nb = classifier.naivebayes.NaiveBayes()
     # フォームからurlを取得
     url = request.GET.get('url')
     # urlのhtmlファイルのテキストを取得
-    html_text = gethtmltext.url_to_text(url)
+    html_text = crawler.gethtmltext.url_to_text(url)
     # エラーが出た場合の処理
     if html_text is None:
         category = "urlを入力して下さい。"
