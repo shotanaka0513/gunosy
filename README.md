@@ -61,43 +61,17 @@ classifier		guesscategory		requirements.txt
 pip install -r requirements.txt
 ```
 
-５、guesscategory/view.pyに以下のコメントを外す。（訓練データの収集の実行のため。）
-```変更前
-    10	# 訓練する際は以下の４行のコードを挿入してください。
-    11	# nb = classifier.naivebayes.NaiveBayes()
-    12	# crawler.gettrain.gunosy_train(nb)
-    13	# print("訓練データの収集が完了しました。ctrl+cを押して、python manage.py runserverでappを実行して下さい。")
-    14	# sys.exit()
+５、訓練urlの収集
+```
+python manage.py geturl
 ```
 
-```変更後
-    10 訓練する際は以下の４行のコードを挿入してください。
-    11 nb = classifier.naivebayes.NaiveBayes()
-    12 crawler.gettrain.gunosy_train(nb)
-    13 print("訓練データの収集が完了しました。ctrl+cを押して、python manage.py runserverでappを実行して下さい。")
-    14 sys.exit()
+６、訓練urlからモデルを作成
+```
+python manage.py gettrain
 ```
 
-
-
-
-６、訓練データを収集
-```
-$python manage.py runserver
-```
-
-７、５でコメントを外した部分を再びコメントとしてつける。
-
-```変更前
-    10	# 訓練する際は以下の４行のコードを挿入してください。
-    11	# nb = classifier.naivebayes.NaiveBayes()
-    12	# crawler.gettrain.gunosy_train(nb)
-    13	# print("訓練データの収集が完了しました。ctrl+cを押して、python manage.py runserverでappを実行して下さい。")
-    14	# sys.exit()
-```
-
-
-８、Djangoアプリの実行
+７、Djangoアプリの実行
 ```
 $python manage.py runserver
 ```
@@ -111,6 +85,4 @@ http://127.0.0.1:8000/guesscategory/
 
 
 ####その他の仕様
-Gunosyのサイトをクローリングスクレイピングする際にアクセス制限がかかった場合はtime.sleepで時間間隔を
-指定してアクセスをして下さい。
-訓練データ数の変更はcrawler/gettrain.pyの３７行目から４７行目を参照。
+訓練データ数の変更はcrawler/geturl.pyの２４行目から３１行目を参照。
