@@ -2,9 +2,9 @@
 import math
 import sys
 import os
-import csv
 from pandas import DataFrame
 import pandas as pd
+from django.conf import settings
 # yahoo!形態素解析
 import classifier.morphological
 
@@ -99,7 +99,8 @@ class NaiveBayes:
         for cat in self.catcount.keys():
             self.catdata.update({cat: [self.priorprob(cat)]})
         catprob_dframe = DataFrame(self.catdata)
-        catprob_dframe.to_csv('catprob.csv')
+        catprob_dframe.to_csv(os.path.join(
+            settings.DATA_DIR, 'models/catprob.csv'))
 
     def wordprob_to_csv(self):
         self.worddata = {}
@@ -108,4 +109,5 @@ class NaiveBayes:
             for word in self.vocabularies:
                 self.worddata[cat].setdefault(word, self.wordprob(word, cat))
         wordprob_dframe = DataFrame(self.worddata)
-        wordprob_dframe.to_csv('wordprob.csv')
+        wordprob_dframe.to_csv(os.path.join(
+            settings.DATA_DIR, 'models/wordprop.csv'))

@@ -4,5 +4,5 @@ from crawler import geturl
 
 class Command(BaseCommand):
 
-	def handle(self, *args, **options):
-		geturl.get_url()
+    def handle(self, *args, **options):
+        geturl.get_url()

@@ -2,8 +2,9 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.error import HTTPError
-from pandas import DataFrame,Series
-import time
+from pandas import DataFrame, Series
+import os
+from django.conf import settings
 
 
 def get_url():
@@ -22,7 +23,7 @@ def get_url():
 
     # 各カテゴリー内のページのタイトルインデックス(定数)
     PAGE_TITLE_START = 0
-    PAGE_TITLE_END = 1
+    PAGE_TITLE_END = 5
 
     # 各カテゴリー内のページの枚数の番号（定数）
     # 汎用性を持たせるため値は変更可能。ただし、1<=CATEGORY_START,CATEGORY_END<=100
@@ -91,8 +92,7 @@ def get_url():
                 # 1つのカテゴリーのurlをすべてリストに保存します。
                 print(page_url)
                 page_urls.append(page_url)
-                # Gunosyのサイトでアクセス制限があれば以下の関数を利用して下さい。
-                # time.sleep(1)
-        page_urls_dframe = DataFrame(page_urls)
-        page_urls_dframe.to_csv("classifier/data/articles/{}/{}.csv".format(name , name))
 
+        page_urls_dframe = DataFrame(page_urls)
+        page_urls_dframe.to_csv(os.path.join(
+            settings.DATA_DIR, 'articles/{}/{}.csv'.format(name, name)))

@@ -2,28 +2,18 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.error import HTTPError
-from pandas import Series, DataFrame
-import classifier.naivebayes
+from pandas import DataFrame
+from classifier import naivebayes
+from django.conf import settings
+import pandas as pd
 import os
 
 
-def gunosy_train(obj):
+def get_train():
 
-    flag = 0
-    # カテゴリーのurl
-    category_urls = [
-        'https://gunosy.com/categories/1',  # エンタメ
-        'https://gunosy.com/categories/2',  # スポーツ
-        'https://gunosy.com/categories/3',  # おもしろ
-        'https://gunosy.com/categories/4',  # 国内
-        'https://gunosy.com/categories/5',  # 海外
-        'https://gunosy.com/categories/6',  # コラム
-        'https://gunosy.com/categories/7',  # IT・科学
-        'https://gunosy.com/categories/8',  # グルメ
-    ]
+    nb = naivebayes.NaiveBayes()
 
-    # カテゴリー名
-    category_names = [
+    categories = [
         'エンタメ',
         'スポーツ',
         'おもしろ',
@@ -34,52 +24,19 @@ def gunosy_train(obj):
         'グルメ',
     ]
 
-    # 各カテゴリー内のページのタイトルインデックス(定数)
-    PAGE_TITLE_START = 0
-    PAGE_TITLE_END = 1
+    for category in categories:
+        category_dframe = pd.read_csv(os.path.join(
+            settings.DATA_DIR,
+            'articles/{}/{}.csv'.format(category, category)),
+            index_col=0)
 
-    # 各カテゴリー内のページの枚数の番号（定数）
-    # 汎用性を持たせるため値は変更可能。ただし、1<=CATEGORY_START,CATEGORY_END<=100
-    CATEGORY_START = 1
-    CATEGORY_END = 1
-
-    # 取得ページ数の表示
-    page_numbers = 1
-
-    for (category_url, category_name) in zip(category_urls, category_names):
-        # try文でカプセル化します。
-        # 各カテゴリーのhtmlを取得
-        # ページがサーバー上で見つかるかどうかをチェック。
-        try:
-            category_html = urlopen(category_url)
-        except HTTPError as e:
-            # エラーの内容を端末に出力
-            print(e)
-            continue
-        # 各カテゴリーのhtmlオブジェクトを作成
-        # サーバーがあるかどうかをチェック。
-        try:
-            category_object = BeautifulSoup(category_html.read())
-        except URLError as e:
-            # エラーの内容を端末に出力
-            print(e)
-            continue
-
-        # 一つのカテゴリーページのページ番号をCATEGORY_STARTからCATEGORY_ENDまで取得。
-        category_page_urls = []
-        for category_page_index in range(CATEGORY_START, CATEGORY_END + 1):
-            category_page_urls.append("%s?page=%s" %
-                                      (category_url, category_page_index))
-
-        for category_page_url in category_page_urls:
-
-            page_urls = []
-            # 各カテゴリーのページurlのhtmlのタイトルとコンテンツを取得し、ナイーブベイズ分類器で学習させる。
+        for i in category_dframe.index:
+            url = category_dframe['0'][i]
             # try文でカプセル化します。
             # 各カテゴリーのhtmlを取得
             # ページがサーバー上で見つかるかどうかをチェック。
             try:
-                category_page_html = urlopen(category_page_url)
+                html = urlopen(url)
             except HTTPError as e:
                 # エラーの内容を端末に出力
                 print(e)
@@ -87,46 +44,16 @@ def gunosy_train(obj):
                 # 各カテゴリーのhtmlオブジェクトを作成
                 # サーバーがあるかどうかをチェック。
             try:
-                category_page_object = BeautifulSoup(category_page_html.read())
+                html_object = BeautifulSoup(html.read())
             except URLError as e:
                 # エラーの内容を端末に出力
                 print(e)
                 continue
 
-            for page_index in range(PAGE_TITLE_START, PAGE_TITLE_END):
-                try:
-                    page_title = category_page_object.find_all("div", {
-                        "class": "list_title"})[
-                        page_index].a.get_text()
-                    page_url = category_page_object.find_all(
-                        "div", {"class": "list_title"})[
-                        page_index].a.get("href")
-                    # Noneオブジェクトにアクセスしないようにする。
-                except AttributeError as e:
-                    # エラーの内容を端末に出力
-                    print(e)
-                    continue
-                # 1つのカテゴリーのurlをすべてリストに保存します。
-                page_urls.append(page_url)
-                # デバック
-                print("No%s,obj.train(%s,%s)" %
-                      (page_numbers, page_title, category_name))
-                page_numbers = page_numbers + 1
-                # 取得したタイトルのテキストを学習させます。
-                obj.train(page_title, category_name)
-                # Gunosyのサイトでアクセス制限があれば以下の関数を利用して下さい。
-                # time.sleep(1)
-
-        page_urls_dframe = DataFrame(page_urls)
-
-        if flag == 0:
-            os.chdir("classifier/data/articles/")
-            flag = 1
-
-        os.chdir("{}".format(category_name))
-        page_urls_dframe.to_csv("{}.csv".format(category_name))
-        os.chdir("../")
-
-    os.chdir("../models")
-    obj.catprob_to_csv()
-    obj.wordprob_to_csv()
+            title = html_object.find(
+                "h1", {"class": "article_header_title"}).get_text()
+            # デバック
+            nb.train(title, category)
+            print("title = {},\n category = {},".format(title, category))
+    nb.catprob_to_csv()
+    nb.wordprob_to_csv()
